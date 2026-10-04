@@ -56,27 +56,31 @@ During on-board spaceflight missions (such as Gaganyaan / orbital space stations
 
 ```mermaid
 flowchart TD
-    subgraph SENSORS["Optical Feed & Ingestion"]
+    subgraph SENSORS["Optical Feed and Ingestion"]
         CAM["Webcam / Sensor Feed"] --> CROP["1:1 Square 480x480 Center Crop"]
     end
 
-    subgraph DETECTION["Vision & AI Detection Core"]
-        CROP --> HSV["HSV Chromatic Segmenter\n(Red/Yellow Boxes)"]
-        CROP --> YOLO["YOLOv11 Neural Object Detector\n(Labware / Utensils)"]
-        CROP --> MP["MediaPipe Hands & Pose\n(Grasp & Proximity Tracking)"]
+    subgraph DETECTION["Vision and AI Detection Core"]
+        CROP --> HSV["HSV Chromatic Segmenter<br/>(Red/Yellow Boxes)"]
+        CROP --> YOLO["YOLOv11 Neural Detector<br/>(Labware / Utensils)"]
+        CROP --> MP["MediaPipe Hands and Pose<br/>(Grasp Tracking)"]
     end
 
-    subgraph ENGINE["Decision & Protocol FSM"]
-        HSV & YOLO & MP --> FSM["State Machine Engine\n(Protocol Compliance Logic)"]
+    subgraph ENGINE["Decision and Protocol FSM"]
+        HSV --> FSM["State Machine Engine<br/>(Protocol Compliance)"]
+        YOLO --> FSM
+        MP --> FSM
         FSM -->|Milestone Transition| TRANS["Debounced State Evaluator"]
         FSM -->|Violation Detected| ALERT["Alert Dispatcher"]
     end
 
-    subgraph OUTPUTS["Cockpit & Telemetry Output"]
-        TRANS --> HUD["QWebChannel Flight Deck UI\n(HTML5/CSS3 Telemetry & Oscillogram)"]
-        ALERT --> AUDIO["Avionics Audio Alert System\n(Offline Synthesizer & Cues)"]
-        TRANS & ALERT --> REC["Video Recorder (MP4)"]
-        TRANS & ALERT --> LOG["Mission Logger (JSONL & HTML Report)"]
+    subgraph OUTPUTS["Cockpit and Telemetry Output"]
+        TRANS --> HUD["Flight Deck UI / Oscillogram"]
+        ALERT --> AUDIO["Avionics Audio Alert System"]
+        TRANS --> REC["Video Recorder (MP4)"]
+        ALERT --> REC
+        TRANS --> LOG["Mission Logger (JSONL / HTML)"]
+        ALERT --> LOG
         TRANS --> LAN["MJPEG LAN Streaming Server"]
     end
 ```
