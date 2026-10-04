@@ -30,7 +30,7 @@
 
 </div>
 
-## 🌌 Executive Summary
+## 1.) Executive Summary
 
 During on-board spaceflight missions (such as Gaganyaan / orbital space stations), astronauts conduct critical **Biological & Physical Sciences (BAS)** experiments under stringent time constraints and high operational stress. A single skipped step, contaminated sample, or out-of-order action can compromise months of scientific payload research.
 
@@ -38,21 +38,21 @@ During on-board spaceflight missions (such as Gaganyaan / orbital space stations
 
 ---
 
-## ⚡ Key Features
+## 2.)  Key Features
 
 | Capability | Engineering Highlights |
 | :--- | :--- |
-| **🎯 Hybrid Detection Pipeline** | Dual-engine visual processing: calibrated **HSV color segmentation** for high-speed chromatic target tracking combined with **YOLOv11 neural inference** for tools, labware, and objects. |
-| **🖐️ Biometric & Spatial Interaction** | **MediaPipe Hands & Pose/Face** integration calculates 3D bounding geometry, finger contact heuristics, and dynamic operator-to-object proximity. |
-| **⚙️ Deterministic Protocol FSM** | Temporal state machine with milestone debouncing, preventing race conditions or false triggers while tracking step sequences, skipped actions, and out-of-order execution. |
-| **🔊 Avionics Auditory Guidance** | 100% offline multi-cue auditory feedback: dual-tone positive confirmation chime (`880 Hz → 1318.5 Hz`) on success, with specialized voice alerts for skipped steps, wrong sequences, and experiment completion. |
-| **🖥️ Chromium Flight Deck UI** | Modern PySide6 desktop interface embedding an aerospace Chromium HUD via `QWebChannel`, featuring a live telemetry strip, 1:1 square viewfinder, and proximity oscillogram canvas. |
-| **📡 LAN Telemetry & Streaming** | Built-in lightweight **MJPEG streamer** allows ground station or remote crew members on the local network to inspect live mission telemetry and video feeds. |
-| **📋 Blackbox Mission Audit** | High-precision **JSONL telemetry event logs** accompanied by one-click automated **HTML interactive mission reports** detailing timing, compliance %, and violation logs. |
+| **1.) Hybrid Detection Pipeline** | Dual-engine visual processing: calibrated **HSV color segmentation** for high-speed chromatic target tracking combined with **YOLOv11 neural inference** for tools, labware, and objects. |
+| **2.) Biometric & Spatial Interaction** | **MediaPipe Hands & Pose/Face** integration calculates 3D bounding geometry, finger contact heuristics, and dynamic operator-to-object proximity. |
+| **3.) Deterministic Protocol FSM** | Temporal state machine with milestone debouncing, preventing race conditions or false triggers while tracking step sequences, skipped actions, and out-of-order execution. |
+| **4.) Avionics Auditory Guidance** | 100% offline multi-cue auditory feedback: dual-tone positive confirmation chime (`880 Hz → 1318.5 Hz`) on success, with specialized voice alerts for skipped steps, wrong sequences, and experiment completion. |
+| **5.) Chromium Flight Deck UI** | Modern PySide6 desktop interface embedding an aerospace Chromium HUD via `QWebChannel`, featuring a live telemetry strip, 1:1 square viewfinder, and proximity oscillogram canvas. |
+| **6.) LAN Telemetry & Streaming** | Built-in lightweight **MJPEG streamer** allows ground station or remote crew members on the local network to inspect live mission telemetry and video feeds. |
+| **7.) Blackbox Mission Audit** | High-precision **JSONL telemetry event logs** accompanied by one-click automated **HTML interactive mission reports** detailing timing, compliance %, and violation logs. |
 
 ---
 
-## 📐 System Architecture
+## 3.) System Architecture
 
 ```mermaid
 flowchart TD
@@ -87,7 +87,7 @@ flowchart TD
 
 ---
 
-## 🔬 Supported Protocols
+## 4.) Supported Protocols
 
 VYOM ships with standardized, extensible JSON protocol definitions located in [`config/protocols/`](config/protocols/):
 
@@ -204,7 +204,7 @@ python -m unittest discover tests/
 
 ---
 
-## 📊 Mission Debrief & Audit Reports
+## 6.) Mission Debrief & Audit Reports
 
 When a mission is concluded or stopped:
 1. All telemetry events are stored chronologically in `logs/vyom_mission_<TIMESTAMP>.jsonl`.
