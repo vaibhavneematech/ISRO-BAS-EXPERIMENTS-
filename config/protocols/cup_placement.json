@@ -1,0 +1,100 @@
+{
+  "protocol_id": "EXP_5_CUP_PLACEMENT",
+  "protocol_name": "Cup Placement Sequence",
+  "experiment_key": "cup_placement",
+  "detection_mode": "YOLOv11 + MediaPipe",
+  "target_objects": ["cup"],
+  "description": "Standardised biological container / cup handling, movement and placement sequence.",
+  "version": "1.0",
+  "steps": [
+    {
+      "step_id": 0,
+      "name": "START",
+      "description": "Experiment initialized. Ready to begin cup placement sequence.",
+      "trigger": {
+        "type": "manual"
+      },
+      "next_suggestion": "Place cup upright in workspace camera view.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 1,
+      "name": "DETECT_CUP",
+      "description": "Baseline verification: Cup detected upright on workspace table.",
+      "trigger": {
+        "type": "object_present",
+        "object": "cup",
+        "aliases": ["cup", "mug"]
+      },
+      "next_suggestion": "Reach towards and grasp cup handle or body.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 2,
+      "name": "PICK_CUP",
+      "description": "Operator grasps cup with hand interaction.",
+      "trigger": {
+        "type": "object_picked",
+        "object": "cup",
+        "require_hand_interaction": true
+      },
+      "next_suggestion": "Move cup towards target workstation zone.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 3,
+      "name": "MOVE_TO_ZONE",
+      "description": "Operator moves cup horizontally across workstation.",
+      "trigger": {
+        "type": "object_moved",
+        "object": "cup",
+        "require_hand_interaction": true
+      },
+      "next_suggestion": "Place cup down steadily onto target workstation surface.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 4,
+      "name": "PLACE_CUP",
+      "description": "Operator sets cup down steadily onto designated zone.",
+      "trigger": {
+        "type": "object_placed",
+        "object": "cup",
+        "require_hand_interaction": true
+      },
+      "next_suggestion": "Withdraw hands from cup to complete placement verification.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 5,
+      "name": "VERIFY_PLACED",
+      "description": "Verification: Cup stationary and upright, hands withdrawn clear.",
+      "trigger": {
+        "type": "verify_placed",
+        "object": "cup",
+        "require_hands_retracted": true
+      },
+      "next_suggestion": "Cup placement verified. Mission telemetry logged.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 6,
+      "name": "COMPLETED",
+      "description": "Cup placement sequence verified successfully.",
+      "trigger": {
+        "type": "terminal"
+      },
+      "next_suggestion": "Mission complete. All milestones achieved.",
+      "is_terminal": true
+    }
+  ],
+  "settings": {
+    "min_hold_frames": 8,
+    "min_error_hold_frames": 4,
+    "interaction_threshold_px": 110,
+    "interaction_memory_frames": 25,
+    "require_hand_interaction": true,
+    "allow_step_skip": false,
+    "log_all_transitions": true
+  }
+}

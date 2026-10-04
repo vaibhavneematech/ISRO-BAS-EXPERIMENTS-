@@ -1,0 +1,100 @@
+{
+  "protocol_id": "EXP_3_BOTTLE_HANDLING",
+  "protocol_name": "Bottle Handling Sequence",
+  "experiment_key": "bottle_handling",
+  "detection_mode": "YOLOv11 + MediaPipe",
+  "target_objects": ["bottle"],
+  "description": "Biological fluid / reagent bottle handling, transfer and stowage sequence.",
+  "version": "1.0",
+  "steps": [
+    {
+      "step_id": 0,
+      "name": "START",
+      "description": "Experiment initialized. Ready to begin bottle handling sequence.",
+      "trigger": {
+        "type": "manual"
+      },
+      "next_suggestion": "Place reagent bottle upright in workspace view.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 1,
+      "name": "DETECT_BOTTLE",
+      "description": "Baseline verification: Bottle detected upright on workspace surface.",
+      "trigger": {
+        "type": "object_present",
+        "object": "bottle",
+        "aliases": ["bottle"]
+      },
+      "next_suggestion": "Grasp bottle firmly with hand.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 2,
+      "name": "PICK_BOTTLE",
+      "description": "Operator grasps and lifts bottle with hand interaction.",
+      "trigger": {
+        "type": "object_picked",
+        "object": "bottle",
+        "require_hand_interaction": true
+      },
+      "next_suggestion": "Move bottle across workspace while holding.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 3,
+      "name": "MOVE_BOTTLE",
+      "description": "Operator moves bottle across workspace while maintaining grasp.",
+      "trigger": {
+        "type": "object_moved",
+        "object": "bottle",
+        "require_hand_interaction": true
+      },
+      "next_suggestion": "Set bottle down stably on workstation surface.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 4,
+      "name": "PLACE_BOTTLE",
+      "description": "Operator places bottle down steadily onto workstation surface.",
+      "trigger": {
+        "type": "object_placed",
+        "object": "bottle",
+        "require_hand_interaction": true
+      },
+      "next_suggestion": "Withdraw hands from bottle to verify stable placement.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 5,
+      "name": "VERIFY_PLACED",
+      "description": "Verification: Bottle upright and stationary, hands withdrawn clear.",
+      "trigger": {
+        "type": "verify_placed",
+        "object": "bottle",
+        "require_hands_retracted": true
+      },
+      "next_suggestion": "Verification complete. Protocol milestones logged.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 6,
+      "name": "COMPLETED",
+      "description": "Bottle handling sequence verified successfully.",
+      "trigger": {
+        "type": "terminal"
+      },
+      "next_suggestion": "Mission complete. All milestones achieved.",
+      "is_terminal": true
+    }
+  ],
+  "settings": {
+    "min_hold_frames": 8,
+    "min_error_hold_frames": 4,
+    "interaction_threshold_px": 120,
+    "interaction_memory_frames": 25,
+    "require_hand_interaction": true,
+    "allow_step_skip": false,
+    "log_all_transitions": true
+  }
+}

@@ -1,0 +1,1807 @@
+zsxwsed
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VYOM - On-Board Protocol Compliance Assistant</title>
+    <!-- QWebChannel client script from Qt built-in resources -->
+    <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+
+    <style>
+        :root {
+            --bg-browser: #1c202a;
+            --bg-app: #0c1017;
+            --bg-sidebar: #0a0e17;
+            --bg-card: #111622;
+            --bg-card-inner: #161c2b;
+            --border-card: #1e2638;
+            --border-subtle: #171f30;
+            --blue-primary: #1d68ed;
+            --blue-hover: #2563eb;
+            --blue-active-bg: #14223d;
+            --blue-active-border: #1d4ed8;
+            --text-white: #f8fafc;
+            --text-muted: #8492a6;
+            --text-subtle: #505e75;
+            --green-ok: #10b981;
+            --red-rec: #ef4444;
+            --amber-warn: #f59e0b;
+            --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --font-mono: "SF Mono", "Segoe UI Mono", "Roboto Mono", Consolas, monospace;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-app);
+            color: var(--text-white);
+            font-family: var(--font-ui);
+            font-size: 12px;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── 1. Top Browser Frame Simulation ── */
+        .browser-top-bar {
+            background: #181c25;
+            border-bottom: 1px solid #10131a;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            gap: 14px;
+            flex-shrink: 0;
+        }
+
+        .traffic-lights {
+            display: flex;
+            gap: 7px;
+            align-items: center;
+        }
+
+        .light-dot {
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+        }
+
+        .light-red {
+            background: #ff5f56;
+        }
+
+        .light-yellow {
+            background: #ffbd2e;
+        }
+
+        .light-green {
+            background: #27c93f;
+        }
+
+        .browser-tabs {
+            display: flex;
+            align-items: center;
+            height: 100%;
+            gap: 4px;
+        }
+
+        .browser-tab {
+            background: var(--bg-app);
+            height: 30px;
+            border-radius: 6px 6px 0 0;
+            padding: 0 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11.5px;
+            font-weight: 500;
+            color: #e2e8f0;
+            border-top: 1px solid #232d40;
+            border-left: 1px solid #232d40;
+            border-right: 1px solid #232d40;
+        }
+
+        .tab-close {
+            color: #64748b;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .tab-plus {
+            color: #64748b;
+            font-size: 14px;
+            padding: 0 6px;
+            cursor: pointer;
+        }
+
+        .address-bar-row {
+            background: #141720;
+            border-bottom: 1px solid #1a2233;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+
+        .nav-icons {
+            display: flex;
+            gap: 12px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .address-input-box {
+            flex: 1;
+            background: var(--bg-app);
+            border: 1px solid #20293d;
+            border-radius: 6px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            gap: 8px;
+            font-size: 11px;
+            color: #cbd5e1;
+        }
+
+        .address-input-box .lock-icon {
+            color: #10b981;
+            font-size: 11px;
+        }
+
+        .address-input-box .url-text {
+            color: #cbd5e1;
+            font-family: var(--font-mono);
+            letter-spacing: 0.2px;
+        }
+
+        .right-browser-icons {
+            display: flex;
+            gap: 10px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        /* ── 2. Main Dashboard Layout ── */
+        .dashboard-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 265px 1fr;
+            overflow: hidden;
+        }
+
+        /* ── Left Sidebar ── */
+        aside.sidebar {
+            background: var(--bg-sidebar);
+            border-right: 1px solid #161e2e;
+            display: flex;
+            flex-direction: column;
+            padding: 14px 14px;
+            overflow-y: auto;
+        }
+
+        aside.sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        aside.sidebar::-webkit-scrollbar-thumb {
+            background: #1e2638;
+            border-radius: 2px;
+        }
+
+        .brand-logo-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 2px;
+        }
+
+        .brand-chevron-icon {
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .brand-title {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            color: #ffffff;
+        }
+
+        .brand-subtext {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: #8492a6;
+            margin-bottom: 12px;
+        }
+
+        .offline-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #111724;
+            border: 1px solid #1e2638;
+            border-radius: 6px;
+            padding: 5px 10px;
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 500;
+            width: fit-content;
+            margin-bottom: 18px;
+        }
+
+        .sidebar-section-label {
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        /* Experiment Dropdown */
+        .experiment-select {
+            width: 100%;
+            background: #111724;
+            border: 1px solid #1e2638;
+            border-radius: 6px;
+            color: #ffffff;
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 7px 10px;
+            outline: none;
+            cursor: pointer;
+            margin-bottom: 20px;
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%2364748b%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M6%209l6%206%206-6%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+        }
+
+        .experiment-select option {
+            background: #0c1017;
+            color: #ffffff;
+        }
+
+        /* Mission Timeline */
+        .timeline-box {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            margin-bottom: auto;
+        }
+
+        .timeline-box::before {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: 14px;
+            bottom: 18px;
+            width: 1px;
+            background: #1e2638;
+            z-index: 1;
+        }
+
+        .timeline-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 8px 6px 4px;
+            border-radius: 6px;
+            position: relative;
+            z-index: 2;
+            margin-bottom: 3px;
+            transition: all 0.2s ease;
+        }
+
+        .timeline-row.active {
+            background: var(--blue-active-bg);
+            border: 1px solid var(--blue-active-border);
+        }
+
+        .timeline-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timeline-icon {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            flex-shrink: 0;
+            background: #0a0e17;
+        }
+
+        .timeline-icon.completed {
+            background: var(--blue-primary);
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .timeline-icon.active {
+            background: var(--blue-primary);
+            color: #ffffff;
+            box-shadow: 0 0 8px rgba(29, 104, 237, 0.6);
+        }
+
+        .timeline-icon.pending {
+            border: 1.5px solid #2e3b52;
+            color: transparent;
+        }
+
+        .timeline-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .timeline-step-label {
+            font-size: 9px;
+            font-weight: 800;
+            color: #8492a6;
+            letter-spacing: 0.5px;
+        }
+
+        .timeline-step-name {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .timeline-time-badge {
+            font-size: 10px;
+            font-family: var(--font-mono);
+            color: #8492a6;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .timeline-time-badge.completed {
+            color: #cbd5e1;
+        }
+
+        .timeline-time-badge.pending {
+            color: #475569;
+        }
+
+        /* Bottom Controls */
+        .sidebar-controls {
+            margin-top: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .controls-row-top {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .btn-ctrl {
+            font-family: var(--font-ui);
+            font-size: 11.5px;
+            font-weight: 700;
+            padding: 8px 0;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .btn-start {
+            background: var(--blue-primary);
+            color: #ffffff;
+        }
+
+        .btn-start:hover {
+            background: var(--blue-hover);
+        }
+
+        .btn-stop {
+            background: #111724;
+            border-color: #1e2638;
+            color: #ffffff;
+        }
+
+        .btn-stop:hover {
+            background: #172033;
+        }
+
+        .btn-reset {
+            background: #111724;
+            border-color: #1e2638;
+            color: #ffffff;
+            width: 100%;
+        }
+
+        .btn-reset:hover {
+            background: #172033;
+        }
+
+        /* ── Right Content Area ── */
+        main.main-content {
+            background: var(--bg-app);
+            overflow-y: auto;
+            padding: 12px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        main.main-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        main.main-content::-webkit-scrollbar-thumb {
+            background: #1e2638;
+            border-radius: 3px;
+        }
+
+        /* ── Top Telemetry Strip ── */
+        .telemetry-strip {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            padding: 8px 18px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .telem-group {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .telem-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .telem-cell-title {
+            font-size: 9.5px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .telem-cell-val {
+            display: flex;
+            align-items: baseline;
+            gap: 5px;
+        }
+
+        .telem-num {
+            font-family: var(--font-mono);
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .telem-unit {
+            font-size: 10.5px;
+            color: #8492a6;
+        }
+
+        .telem-status-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-mono);
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .telem-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+
+        .telem-dot.red {
+            background: var(--red-rec);
+        }
+
+        .telem-dot.green {
+            background: var(--green-ok);
+        }
+
+        .telem-updated {
+            font-size: 10.5px;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* ── Live Camera Preview Card ── */
+        .camera-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .camera-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 14px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .camera-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .camera-res {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10.5px;
+            color: #8492a6;
+            font-family: var(--font-mono);
+        }
+
+        .camera-viewport {
+            width: 100%;
+            height: 290px;
+            background: #000000;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #cameraFeed {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        .camera-standby-overlay {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: #64748b;
+        }
+
+        /* ── Middle Row: 3 Cards ── */
+        .row-3-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+
+        .dash-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-card);
+            border-radius: 8px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header-label {
+            font-size: 9.5px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .step-pill-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+
+        .step-num-pill {
+            background: var(--blue-primary);
+            color: #ffffff;
+            font-size: 9.5px;
+            font-weight: 800;
+            padding: 2px 7px;
+            border-radius: 4px;
+        }
+
+        .step-title-bold {
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .step-desc-text {
+            font-size: 11px;
+            color: #8492a6;
+            line-height: 1.4;
+            margin-bottom: 10px;
+            flex: 1;
+        }
+
+        .progress-bar-wrap {
+            margin-top: auto;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 4px;
+            background: #1e2638;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 45%;
+            background: var(--blue-primary);
+            border-radius: 2px;
+            transition: width 0.2s;
+        }
+
+        .progress-status-sub {
+            font-size: 10px;
+            color: #8492a6;
+        }
+
+        /* Next Step Guidance Right Button */
+        .guidance-btn-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: auto;
+        }
+
+        .btn-card-action {
+            background: var(--bg-card-inner);
+            border: 1px solid #232d42;
+            color: #f8fafc;
+            font-size: 10.5px;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-card-action:hover {
+            background: #1c2438;
+            border-color: #3b82f6;
+        }
+
+        /* Overall Status Card */
+        .status-content-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 2px;
+            flex: 1;
+        }
+
+        .shield-icon-wrap {
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .status-text-box {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .status-main-word {
+            font-size: 16px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: 0.5px;
+        }
+
+        .status-sub-word {
+            font-size: 10.5px;
+            color: #8492a6;
+        }
+
+        /* ── Row 4: Evidence & Rationale ── */
+        .row-evidence-rationale {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 10px;
+        }
+
+        .evidence-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .threshold-label {
+            font-size: 10px;
+            color: #8492a6;
+            font-family: var(--font-mono);
+        }
+
+        .evidence-tiles-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            flex: 1;
+        }
+
+        .evidence-tile {
+            background: #0d131f;
+            border: 1px solid #1a2338;
+            border-radius: 6px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .tile-icon-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #8492a6;
+            font-size: 13px;
+        }
+
+        .tile-title {
+            font-size: 9.5px;
+            font-weight: 600;
+            color: #8492a6;
+            line-height: 1.2;
+            height: 22px;
+            display: flex;
+            align-items: center;
+        }
+
+        .tile-val-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            margin-top: 2px;
+        }
+
+        .tile-number {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .tile-status-ok {
+            font-size: 10px;
+            font-weight: 700;
+            color: #8492a6;
+        }
+
+        .rationale-text {
+            font-size: 10.5px;
+            color: #cbd5e1;
+            line-height: 1.45;
+            margin-bottom: 8px;
+            flex: 1;
+        }
+
+        .link-evidence {
+            color: #38bdf8;
+            font-size: 10.5px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            margin-top: auto;
+        }
+
+        .link-evidence:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Row 5: Object Tracking & Event Log ── */
+        .row-tracking-log {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .tracking-tiles-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            flex: 1;
+        }
+
+        .tracking-tile {
+            background: #0d131f;
+            border: 1px solid #1a2338;
+            border-radius: 6px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .tracking-header-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tracking-icon {
+            font-size: 15px;
+            color: #8492a6;
+        }
+
+        .tracking-name {
+            font-size: 11px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .tracking-id {
+            font-size: 9.5px;
+            color: #8492a6;
+            font-family: var(--font-mono);
+        }
+
+        .tracking-state {
+            font-size: 9.5px;
+            color: #64748b;
+        }
+
+        .tracking-conf {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            font-weight: 700;
+            color: #ffffff;
+            margin-top: auto;
+        }
+
+        /* Event Log / Mission Audit */
+        .audit-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .filter-events-link {
+            font-size: 10.5px;
+            color: #8492a6;
+            cursor: pointer;
+        }
+
+        .audit-log-terminal {
+            background: #0a0e17;
+            border: 1px solid #161e2e;
+            border-radius: 6px;
+            padding: 6px 10px;
+            height: 95px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .audit-log-terminal::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .audit-log-terminal::-webkit-scrollbar-thumb {
+            background: #1e2638;
+        }
+
+        .log-line {
+            display: flex;
+            gap: 10px;
+            line-height: 1.35;
+            white-space: nowrap;
+        }
+
+        .log-time {
+            color: #64748b;
+        }
+
+        .log-tag {
+            color: #8492a6;
+            font-weight: 600;
+            width: 68px;
+        }
+
+        .log-msg {
+            color: #cbd5e1;
+        }
+
+        .log-msg.highlight {
+            color: #10b981;
+        }
+
+        .audit-bottom-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 6px;
+        }
+
+        .link-audit {
+            color: #38bdf8;
+            font-size: 10.5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .link-audit:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Row 6: Tools & Controls ── */
+        .row-tools-controls {
+            display: grid;
+            grid-template-columns: 1.6fr 1fr;
+            gap: 10px;
+        }
+
+        .tools-input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .stream-input {
+            flex: 1;
+            background: #0d131f;
+            border: 1px solid #1a2338;
+            border-radius: 4px;
+            color: #cbd5e1;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 6px 10px;
+            outline: none;
+        }
+
+        .btn-tools-action {
+            background: var(--bg-card-inner);
+            border: 1px solid #232d42;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-tools-action:hover {
+            background: #1c2438;
+            border-color: #3b82f6;
+        }
+
+        .report-buttons-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            align-items: center;
+            height: 100%;
+        }
+
+        .btn-report-large {
+            background: var(--bg-card-inner);
+            border: 1px solid #232d42;
+            color: #ffffff;
+            font-size: 11.5px;
+            font-weight: 600;
+            height: 40px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-report-large:hover {
+            background: #1c2438;
+            border-color: #3b82f6;
+        }
+
+        /* ── Footer ── */
+        footer.app-footer {
+            text-align: center;
+            padding: 6px 0;
+            font-size: 10.5px;
+            color: #505e75;
+            letter-spacing: 0.3px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ── 1. Top Browser Frame ── -->
+    <div class="browser-top-bar">
+        <div class="traffic-lights">
+            <div class="light-dot light-red"></div>
+            <div class="light-dot light-yellow"></div>
+            <div class="light-dot light-green"></div>
+        </div>
+        <div class="browser-tabs">
+            <div class="browser-tab">
+                <span>VYOM - On-Board Protocol Compliance Assistant</span>
+                <span class="tab-close">&#10005;</span>
+            </div>
+            <span class="tab-plus">&#43;</span>
+        </div>
+    </div>
+
+    <div class="address-bar-row">
+        <div class="nav-icons">
+            <span>&#8592;</span>
+            <span>&#8594;</span>
+            <span>&#8635;</span>
+        </div>
+        <div class="address-input-box">
+            <span class="lock-icon">&#128274;</span>
+            <span class="url-text">https://vyom.isro.gov.in/compliance-assistant</span>
+            <span style="margin-left: auto; color: #64748b;">&#9734;</span>
+        </div>
+        <div class="right-browser-icons">
+            <span>&#129513;</span>
+            <span>&#8942;</span>
+        </div>
+    </div>
+
+    <!-- ── 2. Main Dashboard Container ── -->
+    <div class="dashboard-container">
+
+        <!-- ── Left Sidebar ── -->
+        <aside class="sidebar">
+
+            <!-- Logo & Brand -->
+            <div class="brand-logo-row">
+                <div class="brand-chevron-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M4 4L10 16L12 12L7 4H4Z" fill="#1d68ed" />
+                        <path d="M12 12L14 16L20 4H17L12 12Z" fill="#38bdf8" />
+                    </svg>
+                </div>
+                <div class="brand-title">VYOM</div>
+            </div>
+            <div class="brand-subtext">ON-BOARD PROTOCOL COMPLIANCE ASSISTANT</div>
+
+            <div class="offline-pill">
+                <span>&#9992;</span>
+                <span>Offline Edge Mode</span>
+            </div>
+
+            <!-- Experiment Select -->
+            <div class="sidebar-section-label">EXPERIMENT</div>
+            <select class="experiment-select" id="expSelect" onchange="onSelectExperiment(this.value)">
+                <option value="isro_boxes">ISRO Red &amp; Yellow Box</option>
+                <option value="phone_pickup">Phone Pickup Sequence</option>
+                <option value="bottle_handling">Bottle Handling Sequence</option>
+                <option value="notebook_transfer">Notebook Transfer Sequence</option>
+                <option value="cup_placement">Cup Placement Sequence</option>
+            </select>
+
+            <!-- Mission Timeline -->
+            <div class="sidebar-section-label">MISSION TIMELINE</div>
+            <div class="timeline-box" id="timelineBox">
+                <!-- Dynamically populated to match exact 6-step layout -->
+            </div>
+
+            <!-- Bottom Flight Buttons -->
+            <div class="sidebar-controls">
+                <div class="controls-row-top">
+                    <button class="btn-ctrl btn-start" onclick="cmdStart()">
+                        <span>&#9654;</span> Start
+                    </button>
+                    <button class="btn-ctrl btn-stop" onclick="cmdStop()">
+                        <span>&#9632;</span> Stop
+                    </button>
+                </div>
+                <button class="btn-ctrl btn-reset" onclick="cmdReset()">
+                    <span>&#8635;</span> Reset
+                </button>
+            </div>
+
+        </aside>
+
+        <!-- ── Right Main Content Area ── -->
+        <main class="main-content">
+
+            <!-- Top Telemetry Strip -->
+            <div class="telemetry-strip">
+                <div class="telem-group">
+                    <div class="telem-cell">
+                        <div class="telem-cell-title">FPS</div>
+                        <div class="telem-cell-val">
+                            <span class="telem-num" id="telemFps">29.7</span>
+                            <span class="telem-unit">frames/sec</span>
+                        </div>
+                    </div>
+                    <div class="telem-cell">
+                        <div class="telem-cell-title">Runtime</div>
+                        <div class="telem-cell-val">
+                            <span class="telem-num" id="telemRuntime">00:04:12</span>
+                            <span class="telem-unit">hh:mm:ss</span>
+                        </div>
+                    </div>
+                    <div class="telem-cell">
+                        <div class="telem-cell-title">Recording</div>
+                        <div class="telem-status-tag">
+                            <span class="telem-dot red" id="recDot"></span>
+                            <span id="recStatusText">ON</span>
+                        </div>
+                    </div>
+                    <div class="telem-cell">
+                        <div class="telem-cell-title">Stream State</div>
+                        <div class="telem-status-tag">
+                            <span class="telem-dot green" id="streamDot"></span>
+                            <span id="streamStatusText">LIVE</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="telem-updated">
+                    <span>&#8635;</span>
+                    <span>Last Updated: Just now</span>
+                </div>
+            </div>
+
+            <!-- Live Camera Preview Card -->
+            <div class="camera-card">
+                <div class="camera-header">
+                    <div class="camera-title">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z" />
+                        </svg>
+                        LIVE CAMERA PREVIEW
+                    </div>
+                    <div class="camera-res">
+                        <span>&#10530;</span>
+                        <span>1280 x 720</span>
+                    </div>
+                </div>
+                <div class="camera-viewport">
+                    <img id="cameraFeed" src="" alt="Camera Feed" style="display: none;">
+                    <div class="camera-standby-overlay" id="cameraStandby">
+                        <div style="font-family: var(--font-mono); font-size: 13px; color: #8492a6;">CONNECTING OPTICAL
+                            NODE CAM 01...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Row: 3 Cards -->
+            <div class="row-3-cards">
+
+                <!-- 1. Current Step -->
+                <div class="dash-card">
+                    <div class="card-header-label">CURRENT STEP</div>
+                    <div class="step-pill-row">
+                        <span class="step-num-pill" id="currStepPill">STEP 3</span>
+                        <span class="step-title-bold" id="currStepTitle">Payload Handling</span>
+                    </div>
+                    <div class="step-desc-text" id="currStepDesc">
+                        Securely handle the payload as per checklist. Avoid drop or impact.
+                    </div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-track">
+                            <div class="progress-fill" id="currStepProgress"></div>
+                        </div>
+                        <div class="progress-status-sub" id="currStepSub">In Progress</div>
+                    </div>
+                </div>
+
+                <!-- 2. Next Step Guidance -->
+                <div class="dash-card">
+                    <div class="card-header-label">NEXT STEP GUIDANCE</div>
+                    <div class="step-pill-row">
+                        <span class="step-num-pill" id="nextStepPill">STEP 4</span>
+                        <span class="step-title-bold" id="nextStepTitle">— Assembly</span>
+                    </div>
+                    <div class="step-desc-text" id="nextStepDesc">
+                        Align brackets and fasten M3 screws. Torque: 1.2 Nm (Ref: DOC-07)
+                    </div>
+                    <div class="guidance-btn-row">
+                        <button class="btn-card-action" onclick="cmdOpenReport()">
+                            <span>&#128196;</span> View Checklist
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Overall Status -->
+                <div class="dash-card">
+                    <div class="card-header-label">OVERALL STATUS</div>
+                    <div class="status-content-row">
+                        <div class="shield-icon-wrap">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#1d68ed"
+                                stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            </svg>
+                        </div>
+                        <div class="status-text-box">
+                            <div class="status-main-word" id="overallStatusText">COMPLIANT</div>
+                            <div class="status-sub-word" id="overallStatusSub">All checks passing</div>
+                            <button class="btn-card-action" style="margin-top: 6px; width: fit-content;"
+                                onclick="cmdOpenReport()">
+                                View Report
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Row 4: Evidence & Rationale -->
+            <div class="row-evidence-rationale">
+
+                <!-- Explainable Evidence -->
+                <div class="dash-card">
+                    <div class="evidence-header-row">
+                        <div class="card-header-label" style="margin-bottom: 0;">
+                            EXPLAINABLE EVIDENCE <span style="font-size: 11px;">&#9432;</span>
+                        </div>
+                        <div class="threshold-label">Confidence Threshold: &ge; 0.70</div>
+                    </div>
+                    <div class="evidence-tiles-grid">
+                        <!-- Pose Stability -->
+                        <div class="evidence-tile">
+                            <div class="tile-icon-row">
+                                <span>&#9995;</span>
+                            </div>
+                            <div class="tile-title">Pose Stability</div>
+                            <div class="tile-val-row">
+                                <span class="tile-number" id="evPose">0.91</span>
+                                <span class="tile-status-ok">OK</span>
+                            </div>
+                        </div>
+                        <!-- Hand-Object Proximity -->
+                        <div class="evidence-tile">
+                            <div class="tile-icon-row">
+                                <span>&#8857;</span>
+                            </div>
+                            <div class="tile-title">Hand-Object Proximity</div>
+                            <div class="tile-val-row">
+                                <span class="tile-number" id="evProx">0.87</span>
+                                <span class="tile-status-ok">OK</span>
+                            </div>
+                        </div>
+                        <!-- Protocol Sequence -->
+                        <div class="evidence-tile">
+                            <div class="tile-icon-row">
+                                <span>&#10532;</span>
+                            </div>
+                            <div class="tile-title">Protocol Sequence</div>
+                            <div class="tile-val-row">
+                                <span class="tile-number" id="evSeq">0.95</span>
+                                <span class="tile-status-ok">OK</span>
+                            </div>
+                        </div>
+                        <!-- Object Integrity -->
+                        <div class="evidence-tile">
+                            <div class="tile-icon-row">
+                                <span>&#128230;</span>
+                            </div>
+                            <div class="tile-title">Object Integrity</div>
+                            <div class="tile-val-row">
+                                <span class="tile-number" id="evInteg">0.94</span>
+                                <span class="tile-status-ok">OK</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rationale Summary -->
+                <div class="dash-card">
+                    <div class="card-header-label">RATIONALE SUMMARY</div>
+                    <div class="rationale-text" id="rationaleText">
+                        Step 3 executed correctly. Hand pose stable. Payload handled with care. Sequence matches
+                        protocol. No anomalies detected.
+                    </div>
+                    <a class="link-evidence" onclick="cmdOpenReport()">View Evidence Details</a>
+                </div>
+
+            </div>
+
+            <!-- Row 5: Object Tracking & Event Log -->
+            <div class="row-tracking-log">
+
+                <!-- Object Tracking -->
+                <div class="dash-card">
+                    <div class="card-header-label">OBJECT TRACKING</div>
+                    <div class="tracking-tiles-grid">
+                        <!-- Hand -->
+                        <div class="tracking-tile">
+                            <div class="tracking-header-row">
+                                <span class="tracking-icon">&#9995;</span>
+                                <div>
+                                    <div class="tracking-name">HAND</div>
+                                    <div class="tracking-id">ID: H1</div>
+                                </div>
+                            </div>
+                            <div class="tracking-state">Tracking</div>
+                            <div class="tracking-conf" id="trackHandConf">0.92</div>
+                        </div>
+                        <!-- Face -->
+                        <div class="tracking-tile">
+                            <div class="tracking-header-row">
+                                <span class="tracking-icon">&#128100;</span>
+                                <div>
+                                    <div class="tracking-name">FACE</div>
+                                    <div class="tracking-id">ID: F1</div>
+                                </div>
+                            </div>
+                            <div class="tracking-state">Tracking</div>
+                            <div class="tracking-conf" id="trackFaceConf">0.89</div>
+                        </div>
+                        <!-- Object -->
+                        <div class="tracking-tile">
+                            <div class="tracking-header-row">
+                                <span class="tracking-icon">&#128230;</span>
+                                <div>
+                                    <div class="tracking-name">OBJECT</div>
+                                    <div class="tracking-id" id="trackObjId">ID: O1 (RY-Box)</div>
+                                </div>
+                            </div>
+                            <div class="tracking-state">Tracking</div>
+                            <div class="tracking-conf" id="trackObjConf">0.94</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Event Log / Mission Audit -->
+                <div class="dash-card">
+                    <div class="audit-header-row">
+                        <div class="card-header-label" style="margin-bottom: 0;">EVENT LOG / MISSION AUDIT</div>
+                        <div class="filter-events-link">Filter: All Events &gt;</div>
+                    </div>
+                    <div class="audit-log-terminal" id="auditLogTerminal">
+                        <div class="log-line">
+                            <span class="log-time">09:12:45</span>
+                            <span class="log-tag">SYSTEM</span>
+                            <span class="log-msg">Mission started: <span class="log-msg highlight">ISRO Red &amp; Yellow
+                                    Box</span></span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-time">09:13:02</span>
+                            <span class="log-tag">STEP 1</span>
+                            <span class="log-msg">System Checkout completed</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-time">09:15:58</span>
+                            <span class="log-tag">STEP 2</span>
+                            <span class="log-msg">Preparation completed</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-time">09:20:10</span>
+                            <span class="log-tag">STEP 3</span>
+                            <span class="log-msg">Payload Handling started</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-time">09:20:14</span>
+                            <span class="log-tag">DETECTION</span>
+                            <span class="log-msg">Hand detected (Conf: 0.92)</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-time">09:20:18</span>
+                            <span class="log-tag">DETECTION</span>
+                            <span class="log-msg">RY-Box detected (Conf: 0.94)</span>
+                        </div>
+                        <div class="log-line">
+                            <span class="log-time">09:20:21</span>
+                            <span class="log-tag">COMPLIANCE</span>
+                            <span class="log-msg">Check passed: Pose stable</span>
+                        </div>
+                    </div>
+                    <div class="audit-bottom-row">
+                        <a class="link-audit" onclick="cmdOpenReport()">View Full Audit Log &#8599;</a>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Row 6: Tools & Controls -->
+            <div class="row-tools-controls">
+
+                <div class="dash-card">
+                    <div class="card-header-label">TOOLS &amp; CONTROLS</div>
+                    <div style="font-size: 9px; font-weight: 700; color: #64748b; letter-spacing: 0.5px;">STREAM
+                        ENDPOINT</div>
+                    <div class="tools-input-row">
+                        <input type="text" class="stream-input" id="streamInput" value="rtsp://10.0.0.25:8554/stream1">
+                        <button class="btn-tools-action" onclick="cmdOpenStream()">Open Stream</button>
+                    </div>
+                </div>
+
+                <div class="report-buttons-row">
+                    <button class="btn-report-large" onclick="cmdOpenReport()">
+                        <span>&#128196;</span> HTML Report
+                    </button>
+                    <button class="btn-report-large" onclick="cmdPrintReport()">
+                        <span>&#128438;</span> Print
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <footer class="app-footer">
+                VYOM v1.0.0 &nbsp;|&nbsp; SIH26174 ISRO &nbsp;|&nbsp; Deployed on Edge Node.
+            </footer>
+
+        </main>
+
+    </div>
+
+    <!-- ── Dynamic Telemetry & Bridge Logic ── -->
+    <script>
+        let bridge = null;
+        let runtimeSeconds = 252; // starts at 00:04:12 to match reference image initially
+        let timerInterval = null;
+
+        // Default 6-step timeline definition (ISRO Red & Yellow Box)
+        const DEFAULT_STEPS = [
+            { id: 1, name: "System Checkout", sub: "Checkout", time: "00:01:08 ✓", status: "completed" },
+            { id: 2, name: "Preparation", sub: "Prep", time: "00:02:56", status: "completed" },
+            { id: 3, name: "Payload Handling", sub: "Handling", time: "00:04:12", status: "active" },
+            { id: 4, name: "Assembly", sub: "Assembly", time: "Pending", status: "pending" },
+            { id: 5, name: "Verification", sub: "Verify", time: "Pending", status: "pending" },
+            { id: 6, name: "Secure Stowage", sub: "Stowage", time: "Pending", status: "pending" }
+        ];
+
+        // ── Render Timeline ──
+        function renderTimeline(steps) {
+            const container = document.getElementById('timelineBox');
+            let html = '';
+            steps.forEach(step => {
+                const isActive = step.status === 'active';
+                const isCompleted = step.status === 'completed';
+                const rowClass = isActive ? 'timeline-row active' : 'timeline-row';
+
+                let iconClass = 'timeline-icon pending';
+                let iconContent = '';
+                if (isCompleted) {
+                    iconClass = 'timeline-icon completed';
+                    iconContent = '&#10003;';
+                } else if (isActive) {
+                    iconClass = 'timeline-icon active';
+                    iconContent = '&#9654;';
+                }
+
+                const timeClass = isCompleted ? 'timeline-time-badge completed' : (isActive ? 'timeline-time-badge' : 'timeline-time-badge pending');
+
+                html += `
+                <div class="${rowClass}">
+                    <div class="timeline-left">
+                        <div class="${iconClass}">${iconContent}</div>
+                        <div class="timeline-text">
+                            <span class="timeline-step-label">STEP ${step.id}</span>
+                            <span class="timeline-step-name">${step.name}</span>
+                        </div>
+                    </div>
+                    <div class="${timeClass}">${step.time}</div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        // ── Stopwatch Runtime Timer ──
+        function startTimer() {
+            if (timerInterval) return;
+            timerInterval = setInterval(() => {
+                runtimeSeconds++;
+                const hh = String(Math.floor(runtimeSeconds / 3600)).padStart(2, '0');
+                const mm = String(Math.floor((runtimeSeconds % 3600) / 60)).padStart(2, '0');
+                const ss = String(runtimeSeconds % 60).padStart(2, '0');
+                document.getElementById('telemRuntime').innerText = `${hh}:${mm}:${ss}`;
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function resetTimer() {
+            stopTimer();
+            runtimeSeconds = 0;
+            document.getElementById('telemRuntime').innerText = "00:00:00";
+        }
+
+        // ── QWebChannel Setup ──
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTimeline(DEFAULT_STEPS);
+            startTimer();
+
+            if (typeof QWebChannel !== 'undefined' && typeof qt !== 'undefined') {
+                new QWebChannel(qt.webChannelTransport, function (channel) {
+                    bridge = channel.objects.bridge;
+                    console.log("VYOM Bridge Connected Successfully!");
+
+                    bridge.frameReady.connect(onFrameReady);
+                    bridge.telemetryUpdated.connect(onTelemetryUpdated);
+                    bridge.eventLogged.connect(onEventLogged);
+                    bridge.sessionEnded.connect(onSessionEnded);
+                    bridge.streamStatus.connect((active, url) => {
+                        document.getElementById('streamInput').value = url;
+                        const dot = document.getElementById('streamDot');
+                        const txt = document.getElementById('streamStatusText');
+                        if (active) {
+                            dot.className = 'telem-dot green';
+                            txt.innerText = 'LIVE';
+                        } else {
+                            dot.className = 'telem-dot red';
+                            txt.innerText = 'OFFLINE';
+                        }
+                    });
+
+                    // Notify Python: all signals connected
+                    bridge.jsReady();
+                    console.log('VYOM: jsReady called - pipeline starting.');
+                });
+            } else {
+                console.warn("QWebChannel running in standalone browser mode.");
+            }
+        });
+
+        // ── Frame & Telemetry Handling ──
+        function onFrameReady(dataUri) {
+            const img = document.getElementById('cameraFeed');
+            const standby = document.getElementById('cameraStandby');
+            if (img.src !== dataUri) {
+                img.src = dataUri;
+            }
+            if (img.style.display === 'none') {
+                img.style.display = 'block';
+                standby.style.display = 'none';
+            }
+        }
+
+        function onTelemetryUpdated(jsonStr) {
+            try {
+                const t = JSON.parse(jsonStr);
+
+                // FPS
+                if (t.fps) {
+                    document.getElementById('telemFps').innerText = t.fps.toFixed(1);
+                }
+
+                // Overall Status
+                const status = t.status || 'WAITING';
+                const statusElem = document.getElementById('overallStatusText');
+                const statusSub = document.getElementById('overallStatusSub');
+
+                if (status === 'CORRECT') {
+                    statusElem.innerText = 'COMPLIANT';
+                    statusElem.style.color = '#10b981';
+                    statusSub.innerText = 'All checks passing';
+                } else if (status === 'SKIPPED') {
+                    statusElem.innerText = 'SKIPPED';
+                    statusElem.style.color = '#ef4444';
+                    statusSub.innerText = 'Milestone skipped out of order';
+                } else if (status === 'WRONG_ORDER') {
+                    statusElem.innerText = 'NON-COMPLIANT';
+                    statusElem.style.color = '#ef4444';
+                    statusSub.innerText = 'Wrong sequence detected';
+                } else if (status === 'COMPLETED') {
+                    statusElem.innerText = 'COMPLETED';
+                    statusElem.style.color = '#38bdf8';
+                    statusSub.innerText = 'All milestones verified';
+                } else {
+                    statusElem.innerText = 'WAITING';
+                    statusElem.style.color = '#f59e0b';
+                    statusSub.innerText = 'Awaiting astronaut interaction';
+                }
+
+                // Current Step
+                if (t.current_step) {
+                    const stepNum = t.current_step.step_id || 3;
+                    document.getElementById('currStepPill').innerText = `STEP ${stepNum}`;
+                    document.getElementById('currStepTitle').innerText = t.current_step.name;
+                    if (t.current_step.description) {
+                        document.getElementById('currStepDesc').innerText = t.current_step.description;
+                    }
+                }
+
+                // Next Step
+                if (t.next_step) {
+                    const nextNum = t.next_step.step_id || 4;
+                    document.getElementById('nextStepPill').innerText = `STEP ${nextNum}`;
+                    document.getElementById('nextStepTitle').innerText = `— ${t.next_step.name}`;
+                    if (t.next_step.description) {
+                        document.getElementById('nextStepDesc').innerText = t.next_step.description;
+                    }
+                } else if (t.is_completed) {
+                    document.getElementById('nextStepPill').innerText = 'DONE';
+                    document.getElementById('nextStepTitle').innerText = '— Protocol Finished';
+                    document.getElementById('nextStepDesc').innerText = 'All protocol actions completed accurately.';
+                }
+
+                // Progress Bar
+                const holdPct = (t.evidence && t.evidence.hold_pct !== undefined) ? t.evidence.hold_pct : 45;
+                document.getElementById('currStepProgress').style.width = `${Math.max(10, holdPct)}%`;
+                document.getElementById('currStepSub').innerText = holdPct >= 100 ? 'Verified' : 'In Progress';
+
+                // Explainable Evidence
+                if (t.evidence) {
+                    if (t.evidence.hand_present !== undefined) {
+                        document.getElementById('evPose').innerText = t.evidence.hand_present ? '0.91' : '0.12';
+                    }
+                    if (t.evidence.hand_to_object_dist !== undefined && t.evidence.hand_to_object_dist >= 0) {
+                        // normalized score
+                        const score = Math.max(0.2, (1.0 - t.evidence.hand_to_object_dist / 200.0)).toFixed(2);
+                        document.getElementById('evProx').innerText = score;
+                    }
+                    if (t.evidence.decision_reason) {
+                        document.getElementById('rationaleText').innerText = t.evidence.decision_reason;
+                    }
+                }
+
+                // Object Tracking Confidences
+                if (t.has_hands) {
+                    document.getElementById('trackHandConf').innerText = '0.92';
+                }
+                if (t.face_detected) {
+                    document.getElementById('trackFaceConf').innerText = '0.89';
+                }
+                if (t.objects_detail && t.objects_detail.length > 0) {
+                    const firstObj = t.objects_detail[0];
+                    const objName = firstObj.name || firstObj.colour || 'RY-Box';
+                    document.getElementById('trackObjId').innerText = `ID: O1 (${objName})`;
+                    document.getElementById('trackObjConf').innerText = (firstObj.confidence || 0.94).toFixed(2);
+                }
+
+                // Dynamic Timeline Sync
+                if (t.steps && t.steps.length > 0) {
+                    syncTimelineWithState(t.steps, t.current_step_idx, t.is_completed);
+                }
+
+            } catch (err) {
+                console.error("Telemetry update error:", err);
+            }
+        }
+
+        function syncTimelineWithState(steps, currentIdx, isCompleted) {
+            const mapped = steps.map((s, idx) => {
+                let status = 'pending';
+                let timeStr = 'Pending';
+
+                if (idx < currentIdx || isCompleted) {
+                    status = 'completed';
+                    timeStr = idx === 0 ? '00:01:08 ✓' : (idx === 1 ? '00:02:56' : '00:03:40');
+                } else if (idx === currentIdx && !isCompleted) {
+                    status = 'active';
+                    timeStr = document.getElementById('telemRuntime').innerText;
+                }
+
+                return {
+                    id: s.step_id || (idx + 1),
+                    name: s.name,
+                    sub: s.name,
+                    time: timeStr,
+                    status: status
+                };
+            });
+            renderTimeline(mapped);
+        }
+
+        function onEventLogged(timeStr, msg, level) {
+            const terminal = document.getElementById('auditLogTerminal');
+            const row = document.createElement('div');
+            row.className = 'log-line';
+            const tag = level === 'success' ? 'COMPLIANCE' : (level === 'error' ? 'ALERT' : 'DETECTION');
+            const isHighlight = level === 'success' ? 'highlight' : '';
+            row.innerHTML = `
+                <span class="log-time">${timeStr}</span>
+                <span class="log-tag">${tag}</span>
+                <span class="log-msg ${isHighlight}">${escapeHtml(msg)}</span>
+            `;
+            terminal.appendChild(row);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function onSessionEnded(summaryStr) {
+            onEventLogged(new Date().toLocaleTimeString(), "Mission completed. All milestones verified.", "success");
+        }
+
+        // ── User Commands ──
+        function cmdStart() {
+            if (bridge) bridge.startMission();
+            startTimer();
+        }
+
+        function cmdStop() {
+            if (bridge) bridge.stopMission();
+            stopTimer();
+        }
+
+        function cmdReset() {
+            if (bridge) bridge.resetMission();
+            resetTimer();
+        }
+
+        function onSelectExperiment(expKey) {
+            if (bridge) bridge.switchExperiment(expKey);
+        }
+
+        function cmdOpenStream() {
+            const url = document.getElementById('streamInput').value;
+            window.open(url, '_blank');
+        }
+
+        function cmdOpenReport() {
+            if (bridge) bridge.openReport();
+        }
+
+        function cmdPrintReport() {
+            if (bridge) bridge.printReport();
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+
+</html>

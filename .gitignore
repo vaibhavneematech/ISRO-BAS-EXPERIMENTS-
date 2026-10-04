@@ -1,0 +1,18 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest / test caches
+.pytest_cache/
+
+# Mission runtime outputs and recordings
+recordings/*.mp4
+logs/*.jsonl
+reports/*.html
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

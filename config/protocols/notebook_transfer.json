@@ -1,0 +1,100 @@
+{
+  "protocol_id": "EXP_4_NOTEBOOK_TRANSFER",
+  "protocol_name": "Notebook Transfer Sequence",
+  "experiment_key": "notebook_transfer",
+  "detection_mode": "YOLOv11 + MediaPipe",
+  "target_objects": ["book"],
+  "description": "Scientific logbook / mission notebook transfer from source to target workspace.",
+  "version": "1.0",
+  "steps": [
+    {
+      "step_id": 0,
+      "name": "START",
+      "description": "Experiment initialized. Ready to begin notebook transfer sequence.",
+      "trigger": {
+        "type": "manual"
+      },
+      "next_suggestion": "Place logbook / notebook flat in workspace source area.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 1,
+      "name": "DETECT_NOTEBOOK",
+      "description": "Baseline verification: Notebook detected in source workspace zone.",
+      "trigger": {
+        "type": "object_present",
+        "object": "book",
+        "aliases": ["book", "notebook"]
+      },
+      "next_suggestion": "Reach towards and grasp notebook with hand.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 2,
+      "name": "PICK_NOTEBOOK",
+      "description": "Operator grasps notebook with hand interaction.",
+      "trigger": {
+        "type": "object_picked",
+        "object": "book",
+        "require_hand_interaction": true
+      },
+      "next_suggestion": "Transfer notebook horizontally across towards target zone.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 3,
+      "name": "MOVE_TO_TARGET_ZONE",
+      "description": "Operator shifts notebook across workspace toward target zone.",
+      "trigger": {
+        "type": "object_moved",
+        "object": "book",
+        "require_hand_interaction": true
+      },
+      "next_suggestion": "Place notebook down in target workstation zone.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 4,
+      "name": "PLACE_NOTEBOOK",
+      "description": "Operator places notebook down flat in target zone.",
+      "trigger": {
+        "type": "object_placed",
+        "object": "book",
+        "require_hand_interaction": true
+      },
+      "next_suggestion": "Withdraw hands from notebook to verify placement.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 5,
+      "name": "VERIFY_PLACED",
+      "description": "Verification: Notebook stationary in target zone, hands retracted clear.",
+      "trigger": {
+        "type": "verify_placed",
+        "object": "book",
+        "require_hands_retracted": true
+      },
+      "next_suggestion": "Transfer verified. Session telemetry being written.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 6,
+      "name": "COMPLETED",
+      "description": "Notebook transfer sequence verified successfully.",
+      "trigger": {
+        "type": "terminal"
+      },
+      "next_suggestion": "Mission complete. All milestones achieved.",
+      "is_terminal": true
+    }
+  ],
+  "settings": {
+    "min_hold_frames": 8,
+    "min_error_hold_frames": 4,
+    "interaction_threshold_px": 130,
+    "interaction_memory_frames": 25,
+    "require_hand_interaction": true,
+    "allow_step_skip": false,
+    "log_all_transitions": true
+  }
+}

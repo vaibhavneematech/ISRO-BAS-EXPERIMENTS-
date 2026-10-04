@@ -1,0 +1,100 @@
+{
+  "protocol_id": "EXP_2_PHONE_PICKUP",
+  "protocol_name": "Phone Pickup Sequence",
+  "experiment_key": "phone_pickup",
+  "detection_mode": "YOLOv11 + MediaPipe",
+  "target_objects": ["cell phone"],
+  "description": "Standardised mobile communicator retrieval, holding, and repositioning sequence.",
+  "version": "1.0",
+  "steps": [
+    {
+      "step_id": 0,
+      "name": "START",
+      "description": "Experiment initialized. Ready to begin phone handling sequence.",
+      "trigger": {
+        "type": "manual"
+      },
+      "next_suggestion": "Place phone on workspace table in camera view.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 1,
+      "name": "DETECT_PHONE",
+      "description": "Baseline verification: Phone detected stationary on surface.",
+      "trigger": {
+        "type": "object_present",
+        "object": "phone",
+        "aliases": ["cell phone", "phone", "mobile"]
+      },
+      "next_suggestion": "Reach towards and pick up the phone with hand.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 2,
+      "name": "PICK_PHONE",
+      "description": "Operator grasps and lifts phone with hand interaction.",
+      "trigger": {
+        "type": "object_picked",
+        "object": "phone",
+        "require_hand_interaction": true
+      },
+      "next_suggestion": "Hold phone elevated in grasp for telemetry confirmation.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 3,
+      "name": "HOLD_PHONE",
+      "description": "Operator holds phone securely in grasp.",
+      "trigger": {
+        "type": "object_held",
+        "object": "phone",
+        "require_hand_interaction": true
+      },
+      "next_suggestion": "Place phone back down onto workstation surface.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 4,
+      "name": "PLACE_PHONE_DOWN",
+      "description": "Operator places phone back down onto workspace surface.",
+      "trigger": {
+        "type": "object_placed",
+        "object": "phone",
+        "require_hand_interaction": true
+      },
+      "next_suggestion": "Withdraw hands from phone to complete placement verification.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 5,
+      "name": "VERIFY_PLACED",
+      "description": "Verification: Phone stationary on surface, hands retracted clear.",
+      "trigger": {
+        "type": "verify_placed",
+        "object": "phone",
+        "require_hands_retracted": true
+      },
+      "next_suggestion": "Verification complete. Telemetry being committed.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 6,
+      "name": "COMPLETED",
+      "description": "Phone pickup protocol successfully completed and validated.",
+      "trigger": {
+        "type": "terminal"
+      },
+      "next_suggestion": "Mission complete. All milestones achieved.",
+      "is_terminal": true
+    }
+  ],
+  "settings": {
+    "min_hold_frames": 8,
+    "min_error_hold_frames": 4,
+    "interaction_threshold_px": 120,
+    "interaction_memory_frames": 25,
+    "require_hand_interaction": true,
+    "allow_step_skip": false,
+    "log_all_transitions": true
+  }
+}

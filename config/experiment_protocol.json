@@ -1,0 +1,120 @@
+{
+  "_comment": "SIH26174 • VYOM: AI Human Activity Recognition for On-board BAS Experiments",
+  "protocol_id": "EXP_1_ISRO_BOXES",
+  "protocol_name": "ISRO Red & Yellow Box BAS Experiment",
+  "experiment_key": "isro_boxes",
+  "detection_mode": "HSV + MediaPipe",
+  "target_objects": ["red", "yellow"],
+  "description": "Official ISRO Biological & Physical Sciences On-Board Activity Recognition sample experiment.",
+  "version": "2.5",
+  "steps": [
+    {
+      "step_id": 0,
+      "name": "START",
+      "description": "Experiment initialized. Ready to calibrate camera and workspace.",
+      "trigger": {
+        "type": "manual"
+      },
+      "next_suggestion": "Place both RED and YELLOW sample boxes into workspace view.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 1,
+      "name": "DETECT_MAIN_BOX",
+      "description": "Baseline verification: Both RED and YELLOW boxes detected simultaneously.",
+      "trigger": {
+        "type": "both_boxes_present",
+        "colours": ["red", "yellow"]
+      },
+      "next_suggestion": "Grasp and remove the RED box from workspace.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 2,
+      "name": "REMOVE_RED_BOX",
+      "description": "Operator extracts RED box with hand interaction. YELLOW remains in workspace.",
+      "trigger": {
+        "type": "box_absent",
+        "colour": "red",
+        "require_other_present": "yellow",
+        "require_hand_interaction": true,
+        "target_colour": "red"
+      },
+      "next_suggestion": "Grasp and remove the YELLOW box from workspace.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 3,
+      "name": "REMOVE_YELLOW_BOX",
+      "description": "Operator extracts YELLOW box with hand interaction. Both boxes absent.",
+      "trigger": {
+        "type": "box_absent",
+        "colour": "yellow",
+        "require_other_present": null,
+        "require_hand_interaction": true,
+        "target_colour": "yellow"
+      },
+      "next_suggestion": "Place the RED box back onto the workspace.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 4,
+      "name": "PLACE_RED_BOX",
+      "description": "Operator returns RED box to workspace with hand interaction.",
+      "trigger": {
+        "type": "box_present",
+        "colour": "red",
+        "require_other_absent": "yellow",
+        "require_hand_interaction": true,
+        "target_colour": "red"
+      },
+      "next_suggestion": "Place the YELLOW box back alongside the RED box.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 5,
+      "name": "PLACE_YELLOW_BOX",
+      "description": "Operator returns YELLOW box alongside RED with hand interaction.",
+      "trigger": {
+        "type": "both_boxes_present",
+        "colours": ["red", "yellow"],
+        "require_hand_interaction": true,
+        "target_colour": "yellow"
+      },
+      "next_suggestion": "Withdraw hands from workspace to verify stationary placement.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 6,
+      "name": "VERIFY_BOTH_PLACED",
+      "description": "Post-placement verification: Both boxes stable in workspace.",
+      "trigger": {
+        "type": "both_boxes_present",
+        "colours": ["red", "yellow"]
+      },
+      "next_suggestion": "Withdraw hands. Verify both boxes stationary in workspace.",
+      "is_terminal": false
+    },
+    {
+      "step_id": 7,
+      "name": "COMPLETED",
+      "description": "All protocol milestones verified successfully. Experiment complete.",
+      "trigger": {
+        "type": "verify_both_placed",
+        "colours": ["red", "yellow"],
+        "require_hands_retracted": true
+      },
+      "next_suggestion": "Mission complete. All milestones achieved. Telemetry logged.",
+      "is_terminal": true
+    }
+  ],
+  "settings": {
+    "min_hold_frames": 8,
+    "min_error_hold_frames": 4,
+    "interaction_threshold_px": 100,
+    "interaction_memory_frames": 25,
+    "require_hand_interaction": true,
+    "allow_step_skip": false,
+    "log_all_transitions": true
+  }
+}
